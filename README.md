@@ -1,4 +1,4 @@
-# Vibration Calculator — MFC (C++) & Excel VBA
+# Vibration Calculator
 
 A single-degree-of-freedom (SDOF) mass–spring–damper vibration calculator,
 implemented twice with the **same physics and the same formulas**:

@@ -1,0 +1,68 @@
+'==============================================================================
+' frmVibrationCalculator — UserForm code-behind
+'
+' This is the code module behind the UserForm named "frmVibrationCalculator".
+' See README.md in this folder for the list of controls to draw on the form
+' and their exact (Name) properties before pasting this code in.
+'==============================================================================
+Option Explicit
+
+Private Sub UserForm_Initialize()
+    Me.Caption = "Vibration Calculator (SDOF Mass-Spring-Damper)"
+
+    Me.lblMass.Caption = "Mass (kg):"
+    Me.lblStiffness.Caption = "Stiffness (N/m):"
+    Me.lblDamping.Caption = "Damping (N*s/m):"
+
+    ' Reasonable defaults so the form is usable immediately, matching the
+    ' defaults in the MFC app.
+    Me.txtMass.Value = "1.0"
+    Me.txtStiffness.Value = "1000.0"
+    Me.txtDamping.Value = "5.0"
+
+    Me.cmdCalculate.Caption = "Calculate"
+    Me.cmdClose.Caption = "Close"
+
+    Me.lblResultFn.Caption = "Natural Frequency: --"
+    Me.lblResultZeta.Caption = "Damping Ratio: --"
+    Me.lblResultFd.Caption = "Damped Frequency: --"
+End Sub
+
+Private Sub cmdCalculate_Click()
+    Dim mass As Double, stiffness As Double, damping As Double
+    Dim fn As Double, zeta As Double, fd As Double
+
+    ' Basic input validation, mirroring the checks in the MFC dialog
+    If Not IsNumeric(Me.txtMass.Value) Or Not IsNumeric(Me.txtStiffness.Value) _
+        Or Not IsNumeric(Me.txtDamping.Value) Then
+        MsgBox "Please enter numeric values for all fields.", vbExclamation, "Invalid input"
+        Exit Sub
+    End If
+
+    mass = CDbl(Me.txtMass.Value)
+    stiffness = CDbl(Me.txtStiffness.Value)
+    damping = CDbl(Me.txtDamping.Value)
+
+    If mass <= 0 Or stiffness <= 0 Or damping < 0 Then
+        MsgBox "Please enter a positive number for mass and stiffness, and a " & _
+               "non-negative number for damping.", vbExclamation, "Invalid input"
+        Exit Sub
+    End If
+
+    fn = CalcNaturalFrequency(mass, stiffness)
+    zeta = CalcDampingRatio(mass, stiffness, damping)
+
+    Me.lblResultFn.Caption = "Natural Frequency: " & Format(fn, "0.0000") & " Hz"
+    Me.lblResultZeta.Caption = "Damping Ratio: " & Format(zeta, "0.0000")
+
+    If zeta < 1 Then
+        fd = CalcDampedFrequency(fn, zeta)
+        Me.lblResultFd.Caption = "Damped Frequency: " & Format(fd, "0.0000") & " Hz"
+    Else
+        Me.lblResultFd.Caption = "Damped Frequency: N/A (system is critically/overdamped)"
+    End If
+End Sub
+
+Private Sub cmdClose_Click()
+    Unload Me
+End Sub
